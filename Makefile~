@@ -1,0 +1,2 @@
+all: 
+	g++ test.cpp nn.h -o test -O2 -larmadillo

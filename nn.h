@@ -60,7 +60,7 @@ vector<mat> back_prop(mat input, mat y, vector<mat> weights, mat nodes)
 	vector<mat> a,d,dw,one;
 	mat temp;
 	a = forward_prop(input,weights,nodes);
-	vec_disp(a);
+	//~ vec_disp(a);
 	int m,n,ind;
 	for(int i=0;i<a.size();i++)
 	{
@@ -79,18 +79,27 @@ vector<mat> back_prop(mat input, mat y, vector<mat> weights, mat nodes)
 		temp = (d[ind] * weights[i+1]) % a[i+1] % (one[i+1] - a[i+1]);		
 		d.push_back(temp);
 	}
-	cout<<"D"<<endl;
-	vec_disp(d);
-	// for(int i=0;i<length-1;i++)
-	// {
-	// 	int n = d[i].n_cols;
-	//  	ind = d.size()-1;
-	//  	d[i] = d[i].cols(1,n-1);
-	//  	cout<<"MULT"<<endl;
-	//  	vec_disp(d);
-	//  	cout<<" N"<<endl;
-	//  	temp = d[ind-i].t() * a[i];  
-	//  	dw.push_back(temp);
-	// }
+	//~ cout<<"D"<<endl;
+	//~ vec_disp(d);
+	
+	for(int i=0;i<length-1;i++)
+	{
+		ind = d.size() - 1;
+		if(i!=0)
+		{
+			int n = d[i].n_cols;
+			d[i] = d[i].cols(1, n-1);
+		}
+	}
+	for(int i=0;i<length-1;i++)
+	{
+	
+		temp = d[ind-i].t() * a[i];  
+		dw.push_back(temp);
+	}
+	 //~ cout<<"D"<<endl;
+	//~ vec_disp(d);
+	//~ cout << "A" << endl;
+	//~ vec_disp(a);
 	return dw;
 }
