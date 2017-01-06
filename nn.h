@@ -26,6 +26,8 @@ void vec_disp(vector<mat> a)
 
 vector<mat> init_weights(mat nodes)
 {
+	// Randomly initializing weights
+	// It is pushed to a vector of armadillo mat types
 	vector<mat> unrolled_weights;
 	mat temp;
 	for(int i=0;i<nodes.n_cols-1;i++)
@@ -38,6 +40,8 @@ vector<mat> init_weights(mat nodes)
 
 vector<mat> forward_prop(mat input, vector<mat> weights, mat nodes)
 {
+	// Forward propagation while storing the activations in a vector of mats
+	// The bias term '1' is added to all the layer activations except the last one (output layer)
 	mat one;
 	vector<mat> a;
 	one<<1;
@@ -69,9 +73,13 @@ vector<mat> back_prop(mat input, mat y, vector<mat> weights, mat nodes)
 		temp.ones(m,n);
 		one.push_back(temp);
 	}
-	int length = nodes.n_cols;	
+	int length = nodes.n_cols;
+	
+	// Local error term for the last layer	
 	temp = (y - a[length-1]) % a[length-1] % (one[length-1] - a[length-1]); 
 	//d.insert(d.begin(),temp);
+	
+	// The local errors are pushed back one by one. The first term in the vector corresponds to the local error of the last layer
 	d.push_back(temp);
 	for(int i=length-3; i>=0; i--)
 	{		
@@ -82,18 +90,23 @@ vector<mat> back_prop(mat input, mat y, vector<mat> weights, mat nodes)
 	//~ cout<<"D"<<endl;
 	//~ vec_disp(d);
 	
+	// The local error for the bias terms need to be removed
+	
 	for(int i=0;i<length-1;i++)
 	{
-		ind = d.size() - 1;
+		
 		if(i!=0)
 		{
+			// The local error for the output layer does not contain a bias term. Hence this need not be run for i=0
 			int n = d[i].n_cols;
 			d[i] = d[i].cols(1, n-1);
 		}
 	}
+	// Computing error gradients
 	for(int i=0;i<length-1;i++)
 	{
-	
+		//As the local errors are pushed in the reversed order, the indexing is reversed again
+		ind = d.size() - 1;
 		temp = d[ind-i].t() * a[i];  
 		dw.push_back(temp);
 	}

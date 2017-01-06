@@ -7,6 +7,8 @@ using namespace arma;
 
 int main()
 {
+	// Initializing inputs, nodes and outputs
+	
 	mat in,nodes,y; 
 	vector<mat> out;
 	in<<1<<3;
