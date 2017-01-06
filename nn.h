@@ -16,6 +16,14 @@ mat sigmoid(mat in)
 	return out;
 }
 
+void vec_disp(vector<mat> a)
+{
+	for(int i = 0; i<a.size();i++)
+	{
+		a[i].print(" ");
+	}
+}
+
 vector<mat> init_weights(mat nodes)
 {
 	vector<mat> unrolled_weights;
@@ -28,50 +36,61 @@ vector<mat> init_weights(mat nodes)
 	return unrolled_weights;	
 }
 
-mat forward_prop(mat input, vector<mat> weights, mat nodes)
+vector<mat> forward_prop(mat input, vector<mat> weights, mat nodes)
 {
 	mat one;
+	vector<mat> a;
 	one<<1;
-	int n_layers = nodes.n_cols;	
+	int n_layers = nodes.n_cols;
+	input = join_horiz(one,input);
+	a.push_back(input);	
 	for(int i=0;i<n_layers-1;i++)
 	{
 		weights[i].print("weights");
-		input = join_horiz(one,input);
-		input = sigmoid(input * trans(weights[i])); 
-		input.print();
+		input = sigmoid(input * trans(weights[i]));
+		if(i!=n_layers-2)
+			input = join_horiz(one,input);
+		a.push_back(input); 
 	}
-	return input;
+	return a;
 }
 
-
-
-// for (int i = 1; i < argc; ++i)
-//     {
-//         if (string(argv[i]) == "--cascade")
-//             cascadeName = argv[++i];
-//         else if (string(argv[i]) == "--video")
-//         {
-//             inputName = argv[++i];
-//             isInputVideo = true;
-//         }
-//         else if (string(argv[i]) == "--camera")
-//         {
-//             inputName = argv[++i];
-//             isInputCamera = true;
-//         }
-//         else if (string(argv[i]) == "--help")
-//         {
-//             help();
-//             return -1;
-//         }
-//         else if (!isInputImage)
-//         {
-//             inputName = argv[i];
-//             isInputImage = true;
-//         }
-//         else
-//         {
-//             cout << "Unknown key: " << argv[i] << endl;
-//             return -1;
-//         }
-//     }
+vector<mat> back_prop(mat input, mat y, vector<mat> weights, mat nodes)
+{
+	vector<mat> a,d,dw,one;
+	mat temp;
+	a = forward_prop(input,weights,nodes);
+	vec_disp(a);
+	int m,n,ind;
+	for(int i=0;i<a.size();i++)
+	{
+		m = a[i].n_rows;
+		n = a[i].n_cols;
+		temp.ones(m,n);
+		one.push_back(temp);
+	}
+	int length = nodes.n_cols;	
+	temp = (y - a[length-1]) % a[length-1] % (one[length-1] - a[length-1]); 
+	//d.insert(d.begin(),temp);
+	d.push_back(temp);
+	for(int i=length-3; i>=0; i--)
+	{		
+		ind = d.size()-1;
+		temp = (d[ind] * weights[i+1]) % a[i+1] % (one[i+1] - a[i+1]);		
+		d.push_back(temp);
+	}
+	cout<<"D"<<endl;
+	vec_disp(d);
+	// for(int i=0;i<length-1;i++)
+	// {
+	// 	int n = d[i].n_cols;
+	//  	ind = d.size()-1;
+	//  	d[i] = d[i].cols(1,n-1);
+	//  	cout<<"MULT"<<endl;
+	//  	vec_disp(d);
+	//  	cout<<" N"<<endl;
+	//  	temp = d[ind-i].t() * a[i];  
+	//  	dw.push_back(temp);
+	// }
+	return dw;
+}

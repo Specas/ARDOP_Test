@@ -7,14 +7,18 @@ using namespace arma;
 
 int main()
 {
-	mat in,out,nodes; 
+	mat in,nodes,y; 
+	vector<mat> out;
 	in<<1<<3;
-	nodes<<2<<2<<1;
+	nodes<<2<<3<<2;
+	y<<1<<0;
 	vector<mat> w;
 	w = init_weights(nodes);
-	out = forward_prop(in,w,nodes);
-	out.print();
+	out = back_prop(in,y,w,nodes);
+	for(int i = 0; i<out.size();i++)
+	{
+		out[i].print("a");
+	}
 
-	return 0;
 }
 
