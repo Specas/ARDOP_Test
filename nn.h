@@ -1,6 +1,7 @@
 #include <iostream>
 #include <armadillo>
 #include <vector>
+#include <sstream>
 
 using namespace std;
 using namespace arma;
@@ -14,6 +15,19 @@ mat sigmoid(mat in)
 	out = out + exp((-1*in));
 	out = 1/out;
 	return out;
+}
+
+mat convert_to_int(string s)
+{
+	stringstream iss(s);
+	int n;
+	mat nums,temp;
+	while (iss >> n)
+	{
+  		temp << n;
+  		nums = join_horiz(nums,temp);
+	}
+	return nums;
 }
 
 void vec_disp(vector<mat> a)
@@ -32,7 +46,7 @@ vector<mat> init_weights(mat nodes)
 	mat temp;
 	for(int i=0;i<nodes.n_cols-1;i++)
 	{
-		temp=randu<mat>(nodes(i+1),nodes(i)+1);
+		temp=randn<mat>(nodes(i+1),nodes(i)+1);
 		unrolled_weights.push_back(temp);		
 	}
 	return unrolled_weights;	
@@ -50,7 +64,7 @@ vector<mat> forward_prop(mat input, vector<mat> weights, mat nodes)
 	a.push_back(input);	
 	for(int i=0;i<n_layers-1;i++)
 	{
-		weights[i].print("weights");
+		//weights[i].print("weights");
 		input = sigmoid(input * trans(weights[i]));
 		if(i!=n_layers-2)
 			input = join_horiz(one,input);
@@ -115,4 +129,31 @@ vector<mat> back_prop(mat input, mat y, vector<mat> weights, mat nodes)
 	//~ cout << "A" << endl;
 	//~ vec_disp(a);
 	return dw;
+}
+
+double lms_error(mat a, mat b)
+{
+	mat c,e;
+	double err;
+	c = (a-b) % (a-b);
+	double acc=0;
+	for(int i=0;i<c.n_cols;i++)
+	{
+		acc= acc + c[i];
+	}
+	err=acc/c.n_cols;
+	return err;
+}
+
+mat threshold(mat a)
+{
+	int n = a.n_cols;
+	for(int i=0;i<n;i++)
+	{
+		if(a(i)>=0.5)
+			a(i)=1;
+		else
+			a(i)=0;
+	}
+	return a;
 }
